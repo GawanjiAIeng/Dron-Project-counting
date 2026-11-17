@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object Detection AI - High Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="gradient-bg"></div>
+
+  <!-- Header -->
+  <header class="header glass">
+    <div class="header-left">
+      <div class="logo-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0099cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 1 0 10 10"/>
+          <path d="M12 12 8 8"/>
+          <path d="M12 12 16 8"/>
+          <path d="M12 12v6"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Object Detection AI</h1>
+        <div class="header-sub">High-Speed Real-Time Analytics</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="speed-badge" id="fpsBadge" hidden>
+        <span class="pulse-dot"></span>
+        <span id="fpsText">0 FPS</span>
+      </span>
+      <span class="status-badge" id="statusBadge">
+        <span class="pulse-dot"></span>
+        Ready
+      </span>
+      <span class="device-badge">{{ class_names|length }} classes</span>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- Left Column -->
+    <div class="col-left">
+      <!-- Upload Area -->
+      <div class="card glass upload-card" id="uploadCard">
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0099cc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <p class="upload-text">Drop your image or video here</p>
+          <p class="upload-sub">Supports JPG, PNG, MP4, AVI, MOV</p>
+          <button class="btn btn-primary" id="browseBtn">Browse Files</button>
+          <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.bmp,.webp,.mp4,.avi,.mov" hidden>
+        </div>
+        <div class="file-info" id="fileInfo" hidden>
+          <div class="file-name" id="fileName"></div>
+          <div class="file-actions">
+            <button class="btn btn-danger btn-sm" id="stopBtn" hidden title="Stop Stream">Stop</button>
+            <button class="btn btn-sm" id="changeFileBtn">Change</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optimization Settings -->
+      <div class="card glass settings-card">
+        <h3 class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0099cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          Speed & Accuracy Settings
+        </h3>
+        <div class="settings-grid">
+          <div class="setting-item">
+            <label class="setting-label">Resolution</label>
+            <div class="btn-group" id="resGroup">
+              <button class="btn btn-setting" data-value="320">320 (Fast)</button>
+              <button class="btn btn-setting active" data-value="480">480 (Optimal)</button>
+              <button class="btn btn-setting" data-value="640">640 (HD)</button>
+            </div>
+          </div>
+          <div class="setting-item">
+            <label class="setting-label">Video Mode</label>
+            <div class="btn-group" id="skipGroup">
+              <button class="btn btn-setting" data-value="10">Fast Preview</button>
+              <button class="btn btn-setting active" data-value="5">Balanced</button>
+              <button class="btn btn-setting" data-value="2">Detailed</button>
+            </div>
+          </div>
+          <div class="setting-item">
+            <label class="setting-label">Execution Engine</label>
+            <span class="device-chip">CPU (8 Threads / PyTorch)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detection Viewer -->
+      <div class="card glass viewer-card">
+        <div class="viewer-header">
+          <h3 class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0099cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            Live Detection Viewer
+          </h3>
+          <div class="viewer-controls">
+            <span class="frame-counter" id="frameCounter" hidden>0 / 0</span>
+            <button class="btn btn-sm" id="playPauseBtn" hidden title="Play / Pause">Pause</button>
+            <button class="btn btn-sm" id="prevFrame" hidden title="Previous Frame">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="btn btn-sm" id="nextFrame" hidden title="Next Frame">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Video Progress Bar -->
+        <div class="stream-progress-wrapper" id="progressWrapper" hidden>
+          <div class="stream-progress-track">
+            <div class="stream-progress-bar" id="streamProgressBar"></div>
+          </div>
+          <div class="stream-progress-info">
+            <span id="progressText">Streaming frames...</span>
+            <span id="progressPercent">0%</span>
+          </div>
+        </div>
+
+        <div class="viewer-placeholder" id="viewerPlaceholder">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#a0a8b8" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          <p>No file selected</p>
+        </div>
+        <div class="viewer-content" id="viewerContent" hidden>
+          <img id="viewerImage" class="viewer-image" alt="Detection result">
+          
+          <!-- Scrubber slider for recorded frames -->
+          <div class="scrubber-container" id="scrubberContainer" hidden>
+            <input type="range" id="videoSlider" class="scrubber-slider" min="0" max="0" value="0" step="1">
+          </div>
+
+          <div class="processing-overlay" id="processingOverlay" hidden>
+            <div class="processing-spinner">
+              <div class="spinner-ring"></div>
+              <p id="spinnerText">Processing...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-right">
+      <!-- Filter Chips -->
+      <div class="card glass filters-card">
+        <h3 class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0099cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          Object Filters
+          <button class="btn btn-sm btn-ghost" id="clearFilters">Reset</button>
+        </h3>
+        <div class="chips-container" id="chipsContainer">
+          {% for name in class_names %}
+          <button class="chip active" data-class="{{ name }}">{{ name }}</button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Detection Results -->
+      <div class="card glass results-card">
+        <div class="results-header">
+          <h3 class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0099cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+            Active Detections
+          </h3>
+          <span class="detection-count" id="detectionCount">0</span>
+        </div>
+        <div class="results-list" id="resultsList">
+          <div class="results-empty">
+            <p>Upload a file to see detections</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

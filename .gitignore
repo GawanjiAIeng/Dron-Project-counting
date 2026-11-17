@@ -1,0 +1,16 @@
+﻿__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+*.log
+kernel.errors.txt
+app/uploads/
+Microsoft/
+temp.mp4
+.mp4.mp4
+/cd
+/dir
+/type
